@@ -93,6 +93,7 @@ def createTree(dataSet,labels):
     return myTree                            
     
 def classify(inputTree,featLabels,testVec):
+    temp1 = inputTree.keys()
     firstStr = inputTree.keys()[0]
     secondDict = inputTree[firstStr]
     featIndex = featLabels.index(firstStr)
