@@ -76,7 +76,7 @@ def createTree(dataSet,labels):
     temp3 = classList[0]
     temp2 = len(classList)
     if classList.count(classList[0]) == len(classList): # 当所有类都相等时停止拆分
-        return classList[0]# 当所有类都相等时停止拆分 stop splitting when all of the classes are equal
+        return classList[0]# 当所有类都相等时停止划分 stop splitting when all of the classes are equal
     temp4 = len(dataSet[0])
     if len(dataSet[0]) == 1: # 当数据集中没有更多功能时停止拆分 stop splitting when there are no more features in dataSet
         return majorityCnt(classList)
