@@ -1,3 +1,4 @@
+# coding=utf-8
 '''
 Created on Feb 4, 2011
 Tree-Based Regression Methods
@@ -14,7 +15,13 @@ def loadDataSet(fileName):      #general function to parse tab -delimited floats
         dataMat.append(fltLine)
     return dataMat
 
+# dataSet:要切分的数据, feature：要切分的特征（代表第几列的索引）, value：切分的数据的判断值
 def binSplitDataSet(dataSet, feature, value):
+    temp1 = dataSet[:,feature]
+    temp2 = nonzero(dataSet[:,feature] > value)
+    temp3 = nonzero(dataSet[:,feature] > value)[0]
+    temp4 = dataSet[nonzero(dataSet[:,feature] > value)[0],:]
+
     mat0 = dataSet[nonzero(dataSet[:,feature] > value)[0],:][0]
     mat1 = dataSet[nonzero(dataSet[:,feature] <= value)[0],:][0]
     return mat0,mat1
@@ -23,6 +30,10 @@ def regLeaf(dataSet):#returns the value used for each leaf
     return mean(dataSet[:,-1])
 
 def regErr(dataSet):
+    temp2 = dataSet[:,-1] # 获取矩阵中的最后一个元素
+    temp1 = var(dataSet[:, -1]) # 求向量的方差
+    temp3 = shape(dataSet)[0]
+    temp4 = var(dataSet[:,-1]) * shape(dataSet)[0] # 计算总方差
     return var(dataSet[:,-1]) * shape(dataSet)[0]
 
 def linearSolve(dataSet):   #helper function used in two places
@@ -45,14 +56,25 @@ def modelErr(dataSet):
     yHat = X * ws
     return sum(power(Y - yHat,2))
 
+# 选择最好的切分特征索引和值 ops=(1,4) 1：是容许的误差下降值，4：是切分的最少样本数。
 def chooseBestSplit(dataSet, leafType=regLeaf, errType=regErr, ops=(1,4)):
-    tolS = ops[0]; tolN = ops[1]
-    #if all the target variables are the same value: quit and return value
+    #是容许的误差下降值
+    tolS = ops[0];
+    #是切分的最少样本数。
+    tolN = ops[1]
+    #  if all the target variables are the same value: quit and return value
+    # 如果所有的目标变量都是相同的值：退出和返回值
+    temp1 = dataSet[:,-1] # 取矩阵的最后一列
+    temp6 = dataSet[:, -1].T # 列转行
+    temp2 = dataSet[:,-1].T.tolist() # 转成集合
+    temp3 = dataSet[:,-1].T.tolist()[0] # 获取数组第0个元素
+    temp4 = set(dataSet[:,-1].T.tolist()[0])# 去重和从小到大排序
+    temp5 = len(set(dataSet[:,-1].T.tolist()[0])) # 获得元素个数
     if len(set(dataSet[:,-1].T.tolist()[0])) == 1: #exit cond 1
         return None, leafType(dataSet)
     m,n = shape(dataSet)
     #the choice of the best feature is driven by Reduction in RSS error from mean
-    S = errType(dataSet)
+    S = errType(dataSet)# 计算平方误差
     bestS = inf; bestIndex = 0; bestValue = 0
     for featIndex in range(n-1):
         for splitVal in set(dataSet[:,featIndex]):
