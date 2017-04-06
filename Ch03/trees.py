@@ -72,7 +72,7 @@ def majorityCnt(classList):
 
 def createTree(dataSet,labels):
     classList = [example[-1] for example in dataSet] # 获取每个数据点的标签
-    temp1 = classList.count(classList[0]) # 计算有多少种标签
+    temp1 = classList.count(classList[0]) # count()作用 : 统计某个元素在数组中出现了多少次
     temp3 = classList[0]
     temp2 = len(classList)
     if classList.count(classList[0]) == len(classList): # 当所有类都相等时停止拆分
