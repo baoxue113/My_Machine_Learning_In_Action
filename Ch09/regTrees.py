@@ -26,7 +26,7 @@ def binSplitDataSet(dataSet, feature, value):
     return mat0,mat1
 
 def regLeaf(dataSet):#returns the value used for each leaf
-    return mean(dataSet[:,-1])
+    return mean(dataSet[:,-1]) # 构建回归树，取最后一列，平均数
 
 def regErr(dataSet):
     temp2 = dataSet[:,-1] # 获取矩阵中的最后一个元素
@@ -38,12 +38,12 @@ def regErr(dataSet):
 def linearSolve(dataSet):   #helper function used in two places
     m,n = shape(dataSet)
     X = mat(ones((m,n))); Y = mat(ones((m,1)))#create a copy of data with 1 in 0th postion
-    X[:,1:n] = dataSet[:,0:n-1]; Y = dataSet[:,-1]#and strip out Y
-    xTx = X.T*X
-    if linalg.det(xTx) == 0.0:
+    X[:,1:n] = dataSet[:,0:n-1]; Y = dataSet[:,-1]#X = 数据集中的所有第1列的值，Y = 数据集中的所有最后一列的值  and strip out Y
+    xTx = X.T*X # 线性回归相关公式
+    if linalg.det(xTx) == 0.0: # 判断矩阵的逆矩阵是否存在
         raise NameError('This matrix is singular, cannot do inverse,\n\
         try increasing the second value of ops')
-    ws = xTx.I * (X.T * Y)
+    ws = xTx.I * (X.T * Y) # 计算回归系数
     return ws,X,Y
 
 def modelLeaf(dataSet):#create linear model and return coeficients
@@ -51,9 +51,9 @@ def modelLeaf(dataSet):#create linear model and return coeficients
     return ws
 
 def modelErr(dataSet):
-    ws,X,Y = linearSolve(dataSet)
-    yHat = X * ws
-    return sum(power(Y - yHat,2))
+    ws,X,Y = linearSolve(dataSet) # 计算回归系数
+    yHat = X * ws # 预测结果
+    return sum(power(Y - yHat,2)) # 真实值 - 预测值，开平方，求和， => 计算误差
 
 # 选择最好的切分特征索引和值 ops=(1,4) 1：是容许的误差下降值，4：是切分的最少样本数。
 def chooseBestSplit(dataSet, leafType=regLeaf, errType=regErr, ops=(1,4)):
@@ -73,7 +73,7 @@ def chooseBestSplit(dataSet, leafType=regLeaf, errType=regErr, ops=(1,4)):
         return None, leafType(dataSet)
     m,n = shape(dataSet)
     #the choice of the best feature is driven by Reduction in RSS error from mean
-    S = errType(dataSet)# 计算平方误差
+    S = errType(dataSet)# 计算误差，根据传入的方法改变
     bestS = inf; bestIndex = 0; # 最好的切分特征（列） bestValue = 0
     for featIndex in range(n-1): # n是列的总数
         temp7 = dataSet[:,featIndex] # 获取第featIndex列的所有值
@@ -87,6 +87,7 @@ def chooseBestSplit(dataSet, leafType=regLeaf, errType=regErr, ops=(1,4)):
                 bestValue = splitVal
                 bestS = newS
     #if the decrease (S-bestS) is less than a threshold don't do the split
+    temp8 = S - bestS
     if (S - bestS) < tolS: # S ：切分数据前的平方差 ，bestS:切分数据后的平方差 ，tolS：是容许的误差下降值，不能小于这个数
         return None, leafType(dataSet) #exit cond 2
     mat0, mat1 = binSplitDataSet(dataSet, bestIndex, bestValue) # 用最优的列和值切分数据。
@@ -158,17 +159,27 @@ def modelTreeEval(model, inDat):
     return float(X*model)
 
 def treeForeCast(tree, inData, modelEval=regTreeEval):
-    if not isTree(tree): return modelEval(tree, inData)
-    if inData[tree['spInd']] > tree['spVal']:
-        if isTree(tree['left']): return treeForeCast(tree['left'], inData, modelEval)
-        else: return modelEval(tree['left'], inData)
+    if not isTree(tree):
+        return modelEval(tree, inData)
+    temp1 = tree['spInd']
+    temp2 = inData[tree['spInd']]
+    temp3 = tree['spVal']
+    if inData[tree['spInd']] > tree['spVal']:# temp2 > temp3 如果大于走left
+        if isTree(tree['left']):
+            temp4 = tree['left']
+            return treeForeCast(tree['left'], inData, modelEval)# 递归调用
+        else:
+            return modelEval(tree['left'], inData)
     else:
-        if isTree(tree['right']): return treeForeCast(tree['right'], inData, modelEval)
-        else: return modelEval(tree['right'], inData)
+        if isTree(tree['right']):
+            temp5 = tree['right']
+            return treeForeCast(tree['right'], inData, modelEval)
+        else:
+            return modelEval(tree['right'], inData)
         
 def createForeCast(tree, testData, modelEval=regTreeEval):
     m=len(testData)
     yHat = mat(zeros((m,1)))
     for i in range(m):
-        yHat[i,0] = treeForeCast(tree, mat(testData[i]), modelEval)
+        yHat[i,0] = treeForeCast(tree, mat(testData[i]), modelEval)# 预测数据点的值
     return yHat
