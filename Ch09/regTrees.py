@@ -18,10 +18,9 @@ def loadDataSet(fileName):      #general function to parse tab -delimited floats
 # dataSet:要切分的数据, feature：要切分的特征（代表第几列的索引）, value：切分的数据的判断值
 def binSplitDataSet(dataSet, feature, value):
     temp1 = dataSet[:,feature]
-    temp2 = nonzero(dataSet[:,feature] > value)
+    temp2 = nonzero(dataSet[:,feature] > value)# 获取集合中每个元素大于目标值value的索引
     temp3 = nonzero(dataSet[:,feature] > value)[0]
-    temp4 = dataSet[nonzero(dataSet[:,feature] > value)[0],:]
-
+    temp4 = dataSet[nonzero(dataSet[:,feature] > value)[0],:]# 将符合条件的数据取出来，变成一个新的集合
     mat0 = dataSet[nonzero(dataSet[:,feature] > value)[0],:][0]
     mat1 = dataSet[nonzero(dataSet[:,feature] <= value)[0],:][0]
     return mat0,mat1
@@ -58,7 +57,7 @@ def modelErr(dataSet):
 
 # 选择最好的切分特征索引和值 ops=(1,4) 1：是容许的误差下降值，4：是切分的最少样本数。
 def chooseBestSplit(dataSet, leafType=regLeaf, errType=regErr, ops=(1,4)):
-    #是容许的误差下降值
+    #是容许的误差下降值，误差下降不能少于这个数
     tolS = ops[0];
     #是切分的最少样本数。
     tolN = ops[1]
@@ -75,28 +74,30 @@ def chooseBestSplit(dataSet, leafType=regLeaf, errType=regErr, ops=(1,4)):
     m,n = shape(dataSet)
     #the choice of the best feature is driven by Reduction in RSS error from mean
     S = errType(dataSet)# 计算平方误差
-    bestS = inf; bestIndex = 0; bestValue = 0
-    for featIndex in range(n-1):
-        for splitVal in set(dataSet[:,featIndex]):
+    bestS = inf; bestIndex = 0; # 最好的切分特征（列） bestValue = 0
+    for featIndex in range(n-1): # n是列的总数
+        temp7 = dataSet[:,featIndex] # 获取第featIndex列的所有值
+        for splitVal in set(dataSet[:,featIndex]):# 用第featIndex列的每一个值尝试切分数据集合，然后计算切分后的2个集合的平方误差之和
             mat0, mat1 = binSplitDataSet(dataSet, featIndex, splitVal)
-            if (shape(mat0)[0] < tolN) or (shape(mat1)[0] < tolN): continue
-            newS = errType(mat0) + errType(mat1)
-            if newS < bestS: 
+            if (shape(mat0)[0] < tolN) or (shape(mat1)[0] < tolN): # 如果切分后的2个集合元素个数都小于4，则进行下一次切分
+                continue
+            newS = errType(mat0) + errType(mat1)# 计算2个集合的平方误差和
+            if newS < bestS: # 新误差比最好的误差小，更新数据
                 bestIndex = featIndex
                 bestValue = splitVal
                 bestS = newS
     #if the decrease (S-bestS) is less than a threshold don't do the split
-    if (S - bestS) < tolS: 
+    if (S - bestS) < tolS: # S ：切分数据前的平方差 ，bestS:切分数据后的平方差 ，tolS：是容许的误差下降值，不能小于这个数
         return None, leafType(dataSet) #exit cond 2
-    mat0, mat1 = binSplitDataSet(dataSet, bestIndex, bestValue)
-    if (shape(mat0)[0] < tolN) or (shape(mat1)[0] < tolN):  #exit cond 3
+    mat0, mat1 = binSplitDataSet(dataSet, bestIndex, bestValue) # 用最优的列和值切分数据。
+    if (shape(mat0)[0] < tolN) or (shape(mat1)[0] < tolN):  #如果切分后的2个集合的行数少于指定的数，就不切集合 #exit cond 3
         return None, leafType(dataSet)
     return bestIndex,bestValue#returns the best feature to split on
                               #and the value used for that split
 
 def createTree(dataSet, leafType=regLeaf, errType=regErr, ops=(1,4)):#assume dataSet is NumPy Mat so we can array filtering
     feat, val = chooseBestSplit(dataSet, leafType, errType, ops)#choose the best split
-    if feat == None: return val #if the splitting hit a stop condition return val
+    if feat == None: return val # 如果分裂击中停止条件返回 if the splitting hit a stop condition return val
     retTree = {}
     retTree['spInd'] = feat
     retTree['spVal'] = val
