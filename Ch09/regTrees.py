@@ -97,7 +97,8 @@ def chooseBestSplit(dataSet, leafType=regLeaf, errType=regErr, ops=(1,4)):
 
 def createTree(dataSet, leafType=regLeaf, errType=regErr, ops=(1,4)):#assume dataSet is NumPy Mat so we can array filtering
     feat, val = chooseBestSplit(dataSet, leafType, errType, ops)#choose the best split
-    if feat == None: return val # 如果分裂击中停止条件返回 if the splitting hit a stop condition return val
+    if feat == None:
+        return val # 如果分裂击中停止条件返回 if the splitting hit a stop condition return val
     retTree = {}
     retTree['spInd'] = feat
     retTree['spVal'] = val

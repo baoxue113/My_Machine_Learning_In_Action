@@ -11,4 +11,4 @@ myTree = regTrees.createTree(myMat2,ops=(0,1))
 myDatTest = regTrees.loadDataSet('ex2test.txt')
 myMat2Test = mat(myDatTest)
 print myTree
-print regTrees.prune(myTree, myMat2Test)
+print regTrees.prune(myTree, myMat2Test)# 后剪枝剪树
