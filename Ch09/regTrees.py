@@ -110,28 +110,42 @@ def isTree(obj):
     return (type(obj).__name__=='dict')
 
 def getMean(tree):
-    if isTree(tree['right']): tree['right'] = getMean(tree['right'])
-    if isTree(tree['left']): tree['left'] = getMean(tree['left'])
+    if isTree(tree['right']):
+        tree['right'] = getMean(tree['right'])
+    if isTree(tree['left']):
+        tree['left'] = getMean(tree['left'])
     return (tree['left']+tree['right'])/2.0
-    
+
+#
 def prune(tree, testData):
-    if shape(testData)[0] == 0: return getMean(tree) #if we have no test data collapse the tree
-    if (isTree(tree['right']) or isTree(tree['left'])):#if the branches are not trees try to prune them
+    if shape(testData)[0] == 0:
+        return getMean(tree) # 如果我们没有测试数据崩溃树 if we have no test data collapse the tree
+    if (isTree(tree['right']) or isTree(tree['left'])):# 如果又边或者左边是一棵树，就切分测试数据集 如果树枝不是树，试着修剪它们 if the branches are not trees try to prune them
         lSet, rSet = binSplitDataSet(testData, tree['spInd'], tree['spVal'])
-    if isTree(tree['left']): tree['left'] = prune(tree['left'], lSet)
-    if isTree(tree['right']): tree['right'] =  prune(tree['right'], rSet)
+    if isTree(tree['left']): # 如果左边是一棵树，就用切好的左边的数据来剪枝，递归
+        tree['left'] = prune(tree['left'], lSet)
+    if isTree(tree['right']): # 如果右边是一棵树，就用切好的右边的数据来剪枝，递归
+        tree['right'] =  prune(tree['right'], rSet)
     #if they are now both leafs, see if we can merge them
-    if not isTree(tree['left']) and not isTree(tree['right']):
-        lSet, rSet = binSplitDataSet(testData, tree['spInd'], tree['spVal'])
-        errorNoMerge = sum(power(lSet[:,-1] - tree['left'],2)) +\
-            sum(power(rSet[:,-1] - tree['right'],2))
-        treeMean = (tree['left']+tree['right'])/2.0
-        errorMerge = sum(power(testData[:,-1] - treeMean,2))
+    if not isTree(tree['left']) and not isTree(tree['right']):# 如果左右都不是树
+        lSet, rSet = binSplitDataSet(testData, tree['spInd'], tree['spVal']) # 切分数据集
+        temp1 = lSet[:,-1]
+        temp2 = tree['left']
+        temp3 = lSet[:,-1] - tree['left']
+        temp4 = power(lSet[:,-1] - tree['left'],2)
+        temp5 = sum(power(lSet[:,-1] - tree['left'],2))
+        # 切分的测试数据左边向量 - 树左边的值，为了预防负数发生所以开平方
+        temp6 = sum(power(lSet[:,-1] - tree['left'],2)) + sum(power(rSet[:,-1] - tree['right'],2))
+        errorNoMerge = sum(power(lSet[:,-1] - tree['left'],2)) + sum(power(rSet[:,-1] - tree['right'],2))
+        treeMean = (tree['left']+tree['right'])/2.0 # 树的左右值的平均数
+        errorMerge = sum(power(testData[:,-1] - treeMean,2))# 测试数据集合的最优一列，减去平均数，开平方，求和
         if errorMerge < errorNoMerge: 
-            print "merging"
+            #print "merging" # 合并树，取树的左右2个值得平均数
             return treeMean
-        else: return tree
-    else: return tree
+        else:
+            return tree
+    else:
+        return tree
     
 def regTreeEval(model, inDat):
     return float(model)
