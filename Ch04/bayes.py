@@ -1,3 +1,4 @@
+# coding=utf-8
 '''
 Created on Oct 19, 2010
 
@@ -14,36 +15,49 @@ def loadDataSet():
                  ['quit', 'buying', 'worthless', 'dog', 'food', 'stupid']]
     classVec = [0,1,0,1,0,1]    #1 is abusive, 0 not
     return postingList,classVec
-                 
+
+# 将文章单词去重制作成向量
 def createVocabList(dataSet):
     vocabSet = set([])  #create empty set
     for document in dataSet:
-        vocabSet = vocabSet | set(document) #union of the two sets
+        temp1 = vocabSet
+        temp2 = set(document)
+        vocabSet = vocabSet | set(document) # 联合两个集合 代码：_test_.py#union of the two sets
     return list(vocabSet)
 
 def setOfWords2Vec(vocabList, inputSet):
-    returnVec = [0]*len(vocabList)
-    for word in inputSet:
-        if word in vocabList:
-            returnVec[vocabList.index(word)] = 1
+    returnVec = [0]*len(vocabList) # 制作最长向量
+    for word in inputSet: # inputSet：输入的文章类别的切好后的词
+        if word in vocabList: # 如果词在vocabList总词中有
+            returnVec[vocabList.index(word)] = 1 # 将returnVec中对于词的位置赋值未1，这里未考虑一个词出现2次的情况，如果考虑，应该是+=1吧，我猜的
         else: print "the word: %s is not in my Vocabulary!" % word
     return returnVec
 
 def trainNB0(trainMatrix,trainCategory):
-    numTrainDocs = len(trainMatrix)
-    numWords = len(trainMatrix[0])
-    pAbusive = sum(trainCategory)/float(numTrainDocs)
-    p0Num = ones(numWords); p1Num = ones(numWords)      #change to ones() 
-    p0Denom = 2.0; p1Denom = 2.0                        #change to 2.0
-    for i in range(numTrainDocs):
-        if trainCategory[i] == 1:
+    numTrainDocs = len(trainMatrix)# 获知有多少个文档
+    numWords = len(trainMatrix[0])# 获知所有文档共有多少个单词
+    # 下一行是计算，全文章中，获取一篇文章是侮辱性文章的概率
+    pAbusive = sum(trainCategory)/float(numTrainDocs) # trainCategory，1代表侮辱性文章，0代表正常文章
+    p0Num = ones(numWords); # 我猜这里用到了特征平滑技术 # 制作32列的向量
+    p1Num = ones(numWords)  #change to ones()
+    p0Denom = 2.0; # 统计类别为0，也就是正常文章出现的总单词数
+    p1Denom = 2.0  # 统计类别为1，也就是侮辱性文章出现的总单词数                     #change to 2.0
+    for i in range(numTrainDocs): # 循环遍历每一篇文章
+        if trainCategory[i] == 1: # 如果此文章是侮辱性文章
             p1Num += trainMatrix[i]
             p1Denom += sum(trainMatrix[i])
         else:
-            p0Num += trainMatrix[i]
+            temp1 = p0Num
+            temp2 = trainMatrix[i]
+            p0Num += trainMatrix[i] # 我猜这里用到了特征平滑技术,防止概率相除=0的情况 然后0又相乘，结果会是0
+            temp5 = p0Num
+            temp3 = p0Denom
+            temp4 = sum(trainMatrix[i]) # 统计该文章类别中出现多少个单词
             p0Denom += sum(trainMatrix[i])
-    p1Vect = log(p1Num/p1Denom)          #change to log()
-    p0Vect = log(p0Num/p0Denom)          #change to log()
+    # 下一行是计算每个特征属于侮辱性文章的概率
+    p1Vect = log(p1Num/p1Denom) # 这里加log是：我们知道，当特征很多的时候，大量小数值的小数乘法会有溢出风险。因此，通常的实现都是将其转换为log：
+    # 下一行是计算每个特征属于正常文章的概率
+    p0Vect = log(p0Num/p0Denom) # http://blog.csdn.net/lsldd/article/details/41542107         #change to log()
     return p0Vect,p1Vect,pAbusive
 
 def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
