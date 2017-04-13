@@ -1,0 +1,17 @@
+弄不明白
+
+# vec2Classify：预测的数据
+# p0V:每个特征属于正常文章的概率
+# p1V：每个特征属于侮辱性文章的概率
+# pClass1：一篇文章是侮辱性文章的概率
+def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
+    temp1 = vec2Classify * p1Vec # 这点理解不了
+    temp2 = log(pClass1)
+    p1 = sum(vec2Classify * p1Vec) + log(pClass1)    #element-wise mult
+    temp1 = vec2Classify * p0Vec # 这点理解不了
+    temp2 = log(1.0 - pClass1) # 一篇文章是正常文章的概率
+    p0 = sum(vec2Classify * p0Vec) + log(1.0 - pClass1)
+    if p1 > p0:
+        return 1
+    else:
+        return 0

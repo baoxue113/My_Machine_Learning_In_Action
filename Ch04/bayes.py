@@ -29,7 +29,8 @@ def setOfWords2Vec(vocabList, inputSet):
     returnVec = [0]*len(vocabList) # 制作最长向量
     for word in inputSet: # inputSet：输入的文章类别的切好后的词
         if word in vocabList: # 如果词在vocabList总词中有
-            returnVec[vocabList.index(word)] = 1 # 将returnVec中对于词的位置赋值未1，这里未考虑一个词出现2次的情况，如果考虑，应该是+=1吧，我猜的
+            returnVec[vocabList.index(word)] = 1 # 将returnVec中对于词的位置赋值未1，这里未考虑一个词出现2次的情况，如果考虑，应该是+=1吧
+                                                 # +=1是词袋模型， = 1是词集模型
         else: print "the word: %s is not in my Vocabulary!" % word
     return returnVec
 
