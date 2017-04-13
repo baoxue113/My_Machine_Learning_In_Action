@@ -38,10 +38,10 @@ def trainNB0(trainMatrix,trainCategory):
     numWords = len(trainMatrix[0])# 获知所有文档共有多少个单词
     # 下一行是计算，全文章中，获取一篇文章是侮辱性文章的概率
     pAbusive = sum(trainCategory)/float(numTrainDocs) # trainCategory，1代表侮辱性文章，0代表正常文章
-    p0Num = ones(numWords); # 我猜这里用到了特征平滑技术 # 制作32列的向量
-    p1Num = ones(numWords)  #change to ones()
-    p0Denom = 2.0; # 统计类别为0，也就是正常文章出现的总单词数
-    p1Denom = 2.0  # 统计类别为1，也就是侮辱性文章出现的总单词数                     #change to 2.0
+    p0Num = ones(numWords); # 这里用到了特征平滑技术，随书62页有解释 # 制作32列的向量
+    p1Num = ones(numWords)  # 这里用到了特征平滑技术，随书62页有解释 #change to ones()
+    p0Denom = 2.0; # 统计类别为0，也就是正常文章出现的总单词数      随书62页有解释
+    p1Denom = 2.0  # 统计类别为1，也就是侮辱性文章出现的总单词数    随书62页有解释                  #change to 2.0
     for i in range(numTrainDocs): # 循环遍历每一篇文章
         if trainCategory[i] == 1: # 如果此文章是侮辱性文章
             p1Num += trainMatrix[i]
@@ -60,8 +60,16 @@ def trainNB0(trainMatrix,trainCategory):
     p0Vect = log(p0Num/p0Denom) # http://blog.csdn.net/lsldd/article/details/41542107         #change to log()
     return p0Vect,p1Vect,pAbusive
 
+# vec2Classify：预测的数据
+# p0V:每个特征属于正常文章的概率
+# p1V：每个特征属于侮辱性文章的概率
+# pClass1：一篇文章是侮辱性文章的概率
 def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
+    temp1 = vec2Classify * p1Vec # 这点理解不了
+    temp2 = log(pClass1)
     p1 = sum(vec2Classify * p1Vec) + log(pClass1)    #element-wise mult
+    temp1 = vec2Classify * p0Vec # 这点理解不了
+    temp2 = log(1.0 - pClass1) # 一篇文章是正常文章的概率
     p0 = sum(vec2Classify * p0Vec) + log(1.0 - pClass1)
     if p1 > p0:
         return 1
@@ -76,18 +84,18 @@ def bagOfWords2VecMN(vocabList, inputSet):
     return returnVec
 
 def testingNB():
-    listOPosts,listClasses = loadDataSet()
-    myVocabList = createVocabList(listOPosts)
+    listOPosts,listClasses = loadDataSet() # listOPosts:特征，listClasses:标量
+    myVocabList = createVocabList(listOPosts) # 创建所有文章中，所有单词的向量，有去重效果，每个单词是唯一的
     trainMat=[]
-    for postinDoc in listOPosts:
+    for postinDoc in listOPosts: # 处理下数据
         trainMat.append(setOfWords2Vec(myVocabList, postinDoc))
-    p0V,p1V,pAb = trainNB0(array(trainMat),array(listClasses))
-    testEntry = ['love', 'my', 'dalmation']
-    thisDoc = array(setOfWords2Vec(myVocabList, testEntry))
-    print testEntry,'classified as: ',classifyNB(thisDoc,p0V,p1V,pAb)
-    testEntry = ['stupid', 'garbage']
-    thisDoc = array(setOfWords2Vec(myVocabList, testEntry))
-    print testEntry,'classified as: ',classifyNB(thisDoc,p0V,p1V,pAb)
+    p0V,p1V,pAb = trainNB0(array(trainMat),array(listClasses)) # p0V:每个特征属于正常文章的概率，p1V：每个特征属于侮辱性文章的概率，pAb：一篇文章是侮辱性文章的概率
+    testEntry = ['love', 'my', 'dalmation'] # 创建测试数据
+    thisDoc = array(setOfWords2Vec(myVocabList, testEntry)) # 将测试数据制作成[1,0,0,0,1......]的向量
+    print testEntry,'classified as: ',classifyNB(thisDoc,p0V,p1V,pAb) # 预测数据点
+    testEntry = ['stupid', 'garbage'] # 创建测试数据
+    thisDoc = array(setOfWords2Vec(myVocabList, testEntry)) # 将测试数据制作成[1,0,0,0,1......]的向量
+    print testEntry,'classified as: ',classifyNB(thisDoc,p0V,p1V,pAb) # 预测数据点
 
 def textParse(bigString):    #input is big string, #output is word list
     import re
