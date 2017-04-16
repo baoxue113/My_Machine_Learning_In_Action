@@ -32,7 +32,7 @@ def setOfWords2Vec(vocabList, inputSet):
         if word in vocabList: # 如果词在vocabList总词中有
             returnVec[vocabList.index(word)] = 1 # 将returnVec中对于词的位置赋值未1，这里未考虑一个词出现2次的情况，如果考虑，应该是+=1吧
                                                  # +=1是词袋模型， = 1是词集模型
-        else: print "the word: %s is not in my Vocabulary!" % word
+        else: print("the word: %s is not in my Vocabulary!" % word)
     return returnVec
 
 def trainNB0(trainMatrix,trainCategory):
@@ -96,10 +96,10 @@ def testingNB():
     p0V,p1V,pAb = trainNB0(array(trainMat),array(listClasses)) # p0V:每个特征属于正常文章的概率，p1V：每个特征属于侮辱性文章的概率，pAb：一篇文章是侮辱性文章的概率
     testEntry = ['love', 'my', 'dalmation'] # 创建测试数据
     thisDoc = array(setOfWords2Vec(myVocabList, testEntry)) # 将测试数据制作成[1,0,0,0,1......]的向量
-    print testEntry,'classified as: ',classifyNB(thisDoc,p0V,p1V,pAb) # 预测数据点
+    print (testEntry,'classified as: ',classifyNB(thisDoc,p0V,p1V,pAb)) # 预测数据点
     testEntry = ['stupid', 'garbage'] # 创建测试数据
     thisDoc = array(setOfWords2Vec(myVocabList, testEntry)) # 将测试数据制作成[1,0,0,0,1......]的向量
-    print testEntry,'classified as: ',classifyNB(thisDoc,p0V,p1V,pAb) # 预测数据点
+    print (testEntry,('classified as: ',classifyNB(thisDoc,p0V,p1V,pAb))) # 预测数据点
 
 def textParse(bigString):    #input is big string, #output is word list
     import re
@@ -141,8 +141,8 @@ def spamTest():
         # classifyNB(array(wordVector),p0V,p1V,pSpam): 预测数据
         if classifyNB(array(wordVector),p0V,p1V,pSpam) != classList[docIndex]: # 判断预测类别是否分类错误
             errorCount += 1 # 如果分错，错误次数+1
-            print "classification error",docList[docIndex]
-    print 'the error rate is: ',float(errorCount)/len(testSet) # 计算错误率
+            print ("classification error",docList[docIndex])
+    print ('the error rate is: ',float(errorCount)/len(testSet)) # 计算错误率
     #return vocabList,fullText
 
 def calcMostFreq(vocabList,fullText):
@@ -185,7 +185,7 @@ def localWords(feed1,feed0):
         wordVector = bagOfWords2VecMN(vocabList, docList[docIndex])
         if classifyNB(array(wordVector),p0V,p1V,pSpam) != classList[docIndex]:
             errorCount += 1
-    print 'the error rate is: ',float(errorCount)/len(testSet)
+    print ('the error rate is: ',float(errorCount)/len(testSet))
     return vocabList,p0V,p1V
 
 def getTopWords(ny,sf):
@@ -196,10 +196,10 @@ def getTopWords(ny,sf):
         if p0V[i] > -6.0 : topSF.append((vocabList[i],p0V[i]))
         if p1V[i] > -6.0 : topNY.append((vocabList[i],p1V[i]))
     sortedSF = sorted(topSF, key=lambda pair: pair[1], reverse=True)
-    print "SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**"
+    print ("SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**SF**")
     for item in sortedSF:
-        print item[0]
+        print (item[0])
     sortedNY = sorted(topNY, key=lambda pair: pair[1], reverse=True)
-    print "NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**"
+    print ("NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**NY**")
     for item in sortedNY:
-        print item[0]
+        print (item[0])
