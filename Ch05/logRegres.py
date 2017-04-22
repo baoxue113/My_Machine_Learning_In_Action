@@ -10,24 +10,27 @@ def loadDataSet():
     fr = open('testSet.txt')
     for line in fr.readlines():
         lineArr = line.strip().split()
-        dataMat.append([1.0, float(lineArr[0]), float(lineArr[1])])
+        dataMat.append([1.0, float(lineArr[0]), float(lineArr[1])]) # 不太明白为什么第一列都是1
         labelMat.append(int(lineArr[2]))
     return dataMat,labelMat
 
 def sigmoid(inX):
-    return 1.0/(1+exp(-inX))
+    return 1.0/(1+exp(-inX)) # P74公式
 
 def gradAscent(dataMatIn, classLabels):
-    dataMatrix = mat(dataMatIn)             #convert to NumPy matrix
-    labelMat = mat(classLabels).transpose() #convert to NumPy matrix
+    dataMatrix = mat(dataMatIn)   #将list集合转换成矩阵           #convert to NumPy matrix
+    labelMat = mat(classLabels).transpose() # 将集合变成列，转成矩阵，transpose：行列转换。#convert to NumPy matrix
     m,n = shape(dataMatrix)
-    alpha = 0.001
-    maxCycles = 500
-    weights = ones((n,1))
+    alpha = 0.001 # 目标移动的步长，默认0.001
+    maxCycles = 500 # 最大迭代次数
+    weights = ones((n,1)) # 每列的权重
     for k in range(maxCycles):              #heavy on matrix operations
-        h = sigmoid(dataMatrix*weights)     #matrix mult
+        # dataMatrix*weights：每个数据点，乘以每列的权重
+        temp1 = dataMatrix*weights # p75 5.2公式
+        h = sigmoid(dataMatrix*weights) # 自定义逻辑回归函数    #matrix mult
         error = (labelMat - h)              #vector subtraction
-        weights = weights + alpha * dataMatrix.transpose()* error #matrix mult
+        temp2 = dataMatrix.transpose()
+        weights = weights + alpha * dataMatrix.transpose() * error # 梯度上升算法,强化学习法，寻找最佳参数 #matrix mult
     return weights
 
 def plotBestFit(weights):
@@ -102,12 +105,12 @@ def colicTest():
         if int(classifyVector(array(lineArr), trainWeights))!= int(currLine[21]):
             errorCount += 1
     errorRate = (float(errorCount)/numTestVec)
-    print "the error rate of this test is: %f" % errorRate
+    print ("the error rate of this test is: %f" % errorRate)
     return errorRate
 
 def multiTest():
     numTests = 10; errorSum=0.0
     for k in range(numTests):
         errorSum += colicTest()
-    print "after %d iterations the average error rate is: %f" % (numTests, errorSum/float(numTests))
+    print ("after %d iterations the average error rate is: %f" % (numTests, errorSum/float(numTests)))
         
