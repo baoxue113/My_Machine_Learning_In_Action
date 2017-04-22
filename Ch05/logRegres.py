@@ -71,14 +71,14 @@ def stocGradAscent0(dataMatrix, classLabels):
 def stocGradAscent1(dataMatrix, classLabels, numIter=150):
     m,n = shape(dataMatrix)
     weights = ones(n)   #initialize to all ones
-    for j in range(numIter):
-        dataIndex = range(m)
-        for i in range(m):
+    for j in range(numIter): # 外循环迭代次数，默认150次
+        dataIndex = list(range(m))
+        for i in range(m): # 内循环，循环多少行数据
             alpha = 4/(1.0+j+i)+0.0001    #apha decreases with iteration, does not 
-            randIndex = int(random.uniform(0,len(dataIndex)))#go to 0 because of the constant
-            h = sigmoid(sum(dataMatrix[randIndex]*weights))
-            error = classLabels[randIndex] - h
-            weights = weights + alpha * error * dataMatrix[randIndex]
+            randIndex = int(random.uniform(0,len(dataIndex)))#随机选择一个数据  #go to 0 because of the constant
+            h = sigmoid(sum(dataMatrix[randIndex]*weights)) # 随机梯度上升算法
+            error = classLabels[randIndex] - h # 随机梯度上升算法
+            weights = weights + alpha * error * dataMatrix[randIndex] # 随机梯度上升算法
             del(dataIndex[randIndex])
     return weights
 
