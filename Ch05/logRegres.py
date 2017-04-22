@@ -17,6 +17,7 @@ def loadDataSet():
 def sigmoid(inX):
     return 1.0/(1+exp(-inX)) # P74公式
 
+# 梯度上升算法
 def gradAscent(dataMatIn, classLabels):
     dataMatrix = mat(dataMatIn)   #将list集合转换成矩阵           #convert to NumPy matrix
     labelMat = mat(classLabels).transpose() # 将集合变成列，转成矩阵，transpose：行列转换。#convert to NumPy matrix
@@ -27,7 +28,7 @@ def gradAscent(dataMatIn, classLabels):
     for k in range(maxCycles):              #heavy on matrix operations
         # dataMatrix*weights：每个数据点，乘以每列的权重
         temp1 = dataMatrix*weights # p75 5.2公式
-        h = sigmoid(dataMatrix*weights) # 自定义逻辑回归函数    #matrix mult
+        h = sigmoid(dataMatrix*weights) # 自定义逻辑回归函数，用的是整个集合的数据    #matrix mult
         error = (labelMat - h)              #vector subtraction
         temp2 = dataMatrix.transpose()
         weights = weights + alpha * dataMatrix.transpose() * error # 梯度上升算法,强化学习法，寻找最佳参数 #matrix mult
@@ -56,12 +57,13 @@ def plotBestFit(weights):
     plt.xlabel('X1'); plt.ylabel('X2');
     plt.show()
 
+# 随机梯度上升算法
 def stocGradAscent0(dataMatrix, classLabels):
     m,n = shape(dataMatrix)
-    alpha = 0.01
+    alpha = 0.01 # 移动的步长
     weights = ones(n)   #initialize to all ones
     for i in range(m):
-        h = sigmoid(sum(dataMatrix[i]*weights))
+        h = sigmoid(sum(dataMatrix[i]*weights)) # 随机梯度上升算法，用的是单个数据点
         error = classLabels[i] - h
         weights = weights + alpha * error * dataMatrix[i]
     return weights
