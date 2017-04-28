@@ -5,7 +5,7 @@ import trees
 myDat, labels = trees.createDataSet()
 print labels
 myTree = treePlotter.retrieveTree(0)
-print myTree # myTree : 模型，决策树
+print myTree # myTree : 模型，chapter03
 # 模型，标签，预测数据
 print trees.classify(myTree, labels,[1,0])
 print trees.classify(myTree, labels,[1,1])
