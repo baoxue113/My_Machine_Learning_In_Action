@@ -69,29 +69,43 @@ def buildStump(dataArr,classLabels,D):
     #bestStump：最好的决策树桩，minError：最小的错误权重，bestClasEst：最好的预测结果
     return bestStump,minError,bestClasEst
 
-
+# dataArr：数据,classLabels：类别,numIt：迭代次数
 def adaBoostTrainDS(dataArr,classLabels,numIt=40):
-    weakClassArr = []
+    weakClassArr = [] # 储存分类模型的数组
     m = shape(dataArr)[0]
-    D = mat(ones((m,1))/m)   #init D to all equal
+    D = mat(ones((m,1))/m)  #构建分类器的时候做判断不改变值 #初始数据点权重向量，构建分类模型的时候会用到 init D to all equal
     aggClassEst = mat(zeros((m,1)))
-    for i in range(numIt):
-        bestStump,error,classEst = buildStump(dataArr,classLabels,D)#build Stump
+    for i in range(numIt): #迭代训练模型，每次迭代数据权重会改变
+        bestStump,error,classEst = buildStump(dataArr,classLabels,D)#构建决策树桩 build Stump
         #print "D:",D.T
+        #max(error,1e-16)：确保不会发生除0溢出
+        #alpha：计算alpha的值，公式在书p117页，error：代表错误率
         alpha = float(0.5*log((1.0-error)/max(error,1e-16)))#calc alpha, throw in max(error,eps) to account for error=0
         bestStump['alpha'] = alpha  
         weakClassArr.append(bestStump)                  #store Stump Params in Array
         #print "classEst: ",classEst.T
-        expon = multiply(-1*alpha*mat(classLabels).T,classEst) #exponent for D calc, getting messy
-        D = multiply(D,exp(expon))                              #Calc New D for next iteration
-        D = D/D.sum()
+        temp1 = mat(classLabels)
+        temp2 = mat(classLabels).T
+        temp3 = alpha*mat(classLabels).T
+        temp4 = -1*alpha*mat(classLabels).T # 的技巧是，P118的公式
+        #classEst:最好的预测的结果值 # multiply:乘法函数
+        expon = multiply(-1*alpha*mat(classLabels).T,classEst) #这里先理解classLabels，然后看书的公式就理解了P118
+        D = multiply(D,exp(expon)) # multiply:乘法函数
+        D = D/D.sum() # 每个数据点的权重已计算出来
         #calc training error of all classifiers, if this is 0 quit for loop early (use break)
-        aggClassEst += alpha*classEst
+        aggClassEst += alpha*classEst #classEst：最好的预测值
         #print "aggClassEst: ",aggClassEst.T
-        aggErrors = multiply(sign(aggClassEst) != mat(classLabels).T,ones((m,1)))
-        errorRate = aggErrors.sum()/m
+        temp5 = sign(aggClassEst) #sign：取符号操作。将矩阵取符号，负数变-1，正数变+1
+        temp6 = mat(classLabels).T
+        temp7 = sign(aggClassEst) != mat(classLabels).T
+        temp8 = ones((m,1))
+        # aggErrors:值为1，代表分类错误
+        aggErrors = multiply(sign(aggClassEst) != mat(classLabels).T,ones((m,1)))#multiply:乘法函数
+        errorRate = aggErrors.sum()/m #计算分类错误率
         print ("total error: ",errorRate)
-        if errorRate == 0.0: break
+        if errorRate == 0.0:#当错误率达到0的时候，就不构建树了
+            break
+    # weakClassArr：根据权重和数据产生的良好的分类器集合，aggClassEst：预测的结果
     return weakClassArr,aggClassEst
 
 def adaClassify(datToClass,classifierArr):
