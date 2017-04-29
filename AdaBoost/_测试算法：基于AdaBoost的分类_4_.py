@@ -7,3 +7,5 @@ datMat,classLabels = adaboost.loadSimpData() # 加载数据
 classifierArray = adaboost.adaBoostTrainDS(datMat,classLabels,30)
 print(adaboost.adaClassify([0,0],classifierArray))
 
+print(adaboost.adaClassify([[5,5],[0,0]],classifierArray))
+
