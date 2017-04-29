@@ -112,13 +112,15 @@ def adaClassify(datToClass,classifierArr):
     dataMatrix = mat(datToClass)#do stuff similar to last aggClassEst in adaBoostTrainDS
     m = shape(dataMatrix)[0]
     aggClassEst = mat(zeros((m,1)))
-    for i in range(len(classifierArr)):
-        classEst = stumpClassify(dataMatrix,classifierArr[i]['dim'],\
-                                 classifierArr[i]['thresh'],\
-                                 classifierArr[i]['ineq'])#call stump classify
-        aggClassEst += classifierArr[i]['alpha']*classEst
+    temp1 = len(classifierArr)
+    for i in range(len(classifierArr[0])):#分别用3个分类器，对一个数据点进行分类
+        #classEst：预测结果分类
+        classEst = stumpClassify(dataMatrix,classifierArr[0][i]['dim'],\
+                                 classifierArr[0][i]['thresh'],\
+                                 classifierArr[0][i]['ineq'])#call stump classify
+        aggClassEst += classifierArr[0][i]['alpha']*classEst #将预测结果相加
         print (aggClassEst)
-    return sign(aggClassEst)
+    return sign(aggClassEst)#取结果的符号
 
 def plotROC(predStrengths, classLabels):
     import matplotlib.pyplot as plt
