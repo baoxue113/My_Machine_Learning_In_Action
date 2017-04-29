@@ -41,7 +41,7 @@ def buildStump(dataArr,classLabels,D):
     dataMatrix = mat(dataArr);
     labelMat = mat(classLabels).T #.T 转换矩阵
     m,n = shape(dataMatrix)
-    numSteps = 10.0;
+    numSteps = 10;
     bestStump = {};#表示最好的树桩
     bestClasEst = mat(zeros((m,1)))
     minError = inf #init error sum, to +infinity
