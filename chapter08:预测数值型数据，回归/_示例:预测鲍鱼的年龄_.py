@@ -1,43 +1,27 @@
 import regression
 from numpy import *
 import matplotlib.pyplot as plt
+abX, abY = regression.loadDataSet('abalone.txt')
 
-xArr, yArr = regression.loadDataSet('ex0.txt')
+print("预测0:99的数据，训练0:99的数据")
+yHat01 = regression.lwlrTest(abX[0:99],abX[0:99],abY[0:99],0.1)
+yHat1 = regression.lwlrTest(abX[0:99],abX[0:99],abY[0:99],1)
+yHat10 = regression.lwlrTest(abX[0:99],abX[0:99],abY[0:99],10)
+print(regression.rssError(abY[0:99],yHat01.T))
+print(regression.rssError(abY[0:99],yHat1.T))
+print(regression.rssError(abY[0:99],yHat10.T))
+print()
+print("预测100:199的数据，训练0:99的数据")
+yHat01 = regression.lwlrTest(abX[100:199],abX[0:99],abY[0:99],0.1)
+yHat1 = regression.lwlrTest(abX[100:199],abX[0:99],abY[0:99],1)
+yHat10 = regression.lwlrTest(abX[100:199],abX[0:99],abY[0:99],10)
+print(regression.rssError(abY[100:199],yHat01.T))
+print(regression.rssError(abY[100:199],yHat1.T))
+print(regression.rssError(abY[100:199],yHat10.T))
 
-print(yArr[0])
-
-xMat = mat(xArr)
-srtInd = xMat[:,1].argsort(0) # argsort:从中可以看出argsort函数返回的是数组值从小到大的索引值
-temp1 = xMat[srtInd] # 这里是个三维数组
-xSort = xMat[srtInd][:,0,:]
-
-yHat = regression.lwlr(xArr[0], xArr, yArr, 1.0)
-
-yHat = regression.lwlr(xArr[0], xArr, yArr, 0.001)
-
-
-#用测试数据预测
-yHat = regression.lwlrTest(xArr, xArr, yArr, 1.0)
-#画出预测的数值，与回归系数的线条
-fig = plt.figure()
-ax = fig.add_subplot(111)
-ax.plot(xSort[:,1],yHat[srtInd])
-ax.scatter(xMat[:,1].flatten().A[0], mat(yArr).T[:,0].flatten().A[0], s = 2, c = 'red')
-plt.show()
-
-yHat = regression.lwlrTest(xArr, xArr, yArr, 0.01)
-
-fig = plt.figure()
-ax = fig.add_subplot(111)
-ax.plot(xSort[:,1],yHat[srtInd])
-ax.scatter(xMat[:,1].flatten().A[0], mat(yArr).T[:,0].flatten().A[0], s = 2, c = 'red')
-plt.show()
-
-
-yHat = regression.lwlrTest(xArr, xArr, yArr, 0.003)
-
-fig = plt.figure()
-ax = fig.add_subplot(111)
-ax.plot(xSort[:,1],yHat[srtInd])
-ax.scatter(xMat[:,1].flatten().A[0], mat(yArr).T[:,0].flatten().A[0], s = 2, c = 'red')
-plt.show()
+print("用简单的线性回归预测100:199的数据，训练0:99的数据")
+# 与简单的线性回归做比较
+ws = regression.standRegres(abX[0:99],abY[0:99])
+yHat = mat(abX[100:199] * ws) # 预测100:199,的值
+print()
+print(regression.rssError(abY[100:199],yHat.T.A))

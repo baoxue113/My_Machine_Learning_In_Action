@@ -50,6 +50,10 @@ def lwlr(testPoint,xArr,yArr,k=1.0):
     ws = xTx.I * (xMat.T * (weights * yMat)) # p142页的公式，求解回归系数
     return testPoint * ws # 返回预测的值
 
+# testArr:测试数据集
+# xArr:训练数据集
+# yArr:训练数据集标签
+# k:与高斯核相关
 def lwlrTest(testArr,xArr,yArr,k=1.0):  #loops over all the data points and applies lwlr to each one
     m = shape(testArr)[0]
     yHat = zeros(m) # 创建预测值向量
@@ -65,8 +69,9 @@ def lwlrTestPlot(xArr,yArr,k=1.0):  #same thing as lwlrTest except it sorts X fi
         yHat[i] = lwlr(xCopy[i],xArr,yArr,k)
     return yHat,xCopy
 
+# 计算误差
 def rssError(yArr,yHatArr): #yArr and yHatArr both need to be arrays
-    return ((yArr-yHatArr)**2).sum()
+    return sqrt(((yArr-yHatArr)**2).sum())
 
 def ridgeRegres(xMat,yMat,lam=0.2):
     xTx = xMat.T*xMat
