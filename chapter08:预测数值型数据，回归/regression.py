@@ -18,6 +18,7 @@ def loadDataSet(fileName):      #general function to parse tab -delimited floats
         labelMat.append(float(curLine[-1]))
     return dataMat,labelMat # 返回特征数据和标量数据
 
+# 普通线性回归，计算回归系数
 def standRegres(xArr,yArr):
     xMat = mat(xArr); yMat = mat(yArr).T # 将数组转换成矩阵
     xTx = xMat.T*xMat # 随书P138公式(前半段实现)
@@ -69,7 +70,7 @@ def lwlrTestPlot(xArr,yArr,k=1.0):  #same thing as lwlrTest except it sorts X fi
         yHat[i] = lwlr(xCopy[i],xArr,yArr,k)
     return yHat,xCopy
 
-# 计算误差
+# 计算平方误差
 def rssError(yArr,yHatArr): #yArr and yHatArr both need to be arrays
     return ((yArr-yHatArr)**2).sum()
 
@@ -101,34 +102,39 @@ def ridgeTest(xArr,yArr):
         wMat[i,:]=ws.T
     return wMat
 
+# 标准化数据
 def regularize(xMat):#regularize by columns
     inMat = xMat.copy()
-    inMeans = mean(inMat,0)   #calc mean then subtract it off
-    inVar = var(inMat,0)      #calc variance of Xi then divide by it
-    inMat = (inMat - inMeans)/inVar
+    inMeans = mean(inMat,0) # 计算矩阵每列的平均值  #calc mean then subtract it off
+    inVar = var(inMat,0)  # 计算矩阵每列的方差    #calc variance of Xi then divide by it
+    inMat = (inMat - inMeans)/inVar # 计算协方差
     return inMat
 
+# 逐步向前回归
+# numIt:迭代次数
+# return:
+#   返回最佳的回归系数
 def stageWise(xArr,yArr,eps=0.01,numIt=100):
     xMat = mat(xArr); yMat=mat(yArr).T
-    yMean = mean(yMat,0)
-    yMat = yMat - yMean     #can also regularize ys but will get smaller coef
+    yMean = mean(yMat,0) # 标准化数据
+    yMat = yMat - yMean # 标准化数据     #can also regularize ys but will get smaller coef
     xMat = regularize(xMat)
     m,n=shape(xMat)
     #returnMat = zeros((numIt,n)) #testing code remove
     ws = zeros((n,1)); wsTest = ws.copy(); wsMax = ws.copy()
-    for i in range(numIt):
+    for i in range(numIt): # 循环迭代次数
         print (ws.T)
         lowestError = inf; 
-        for j in range(n):
-            for sign in [-1,1]:
-                wsTest = ws.copy()
-                wsTest[j] += eps*sign
-                yTest = xMat*wsTest
-                rssE = rssError(yMat.A,yTest.A)
-                if rssE < lowestError:
+        for j in range(n):# 循环遍历每一列
+            for sign in [-1,1]: # 每一列取正计算一次，再取负数计算一次
+                wsTest = wsMax.copy()
+                wsTest[j] += eps*sign # eps：用户定义的系数
+                yTest = xMat*wsTest # 预测数值
+                rssE = rssError(yMat.A,yTest.A) # 计算平方误差
+                if rssE < lowestError: # 如果误差小于前面的
                     lowestError = rssE
-                    wsMax = wsTest
-        ws = wsMax.copy()
+                    wsMax = wsTest # 获取最优wsMax
+    return wsMax.copy()
         #returnMat[i,:]=ws.T
     #return returnMat
 
