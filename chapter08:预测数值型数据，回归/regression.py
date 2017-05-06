@@ -71,29 +71,33 @@ def lwlrTestPlot(xArr,yArr,k=1.0):  #same thing as lwlrTest except it sorts X fi
 
 # 计算误差
 def rssError(yArr,yHatArr): #yArr and yHatArr both need to be arrays
-    return sqrt(((yArr-yHatArr)**2).sum())
+    return ((yArr-yHatArr)**2).sum()
 
+# lam：参数
 def ridgeRegres(xMat,yMat,lam=0.2):
-    xTx = xMat.T*xMat
-    denom = xTx + eye(shape(xMat)[1])*lam
+    xTx = xMat.T*xMat #p146公式
+    temp = eye(shape(xMat)[1])
+    denom = xTx + eye(shape(xMat)[1])*lam # eye(shape(xMat)[1])，单位矩阵
     if linalg.det(denom) == 0.0:
         print ("This matrix is singular, cannot do inverse")
         return
+    # denom.I:获得矩阵的逆矩阵
     ws = denom.I * (xMat.T*yMat)
     return ws
     
 def ridgeTest(xArr,yArr):
     xMat = mat(xArr); yMat=mat(yArr).T
-    yMean = mean(yMat,0)
-    yMat = yMat - yMean     #to eliminate X0 take mean off of Y
+    yMean = mean(yMat,0) # mean：计算矩阵的均值，每列
+    yMat = yMat - yMean  # 标准化数据   #to eliminate X0 take mean off of Y
     #regularize X's
-    xMeans = mean(xMat,0)   #calc mean then subtract it off
-    xVar = var(xMat,0)      #calc variance of Xi then divide by it
-    xMat = (xMat - xMeans)/xVar
-    numTestPts = 30
-    wMat = zeros((numTestPts,shape(xMat)[1]))
+    xMeans = mean(xMat,0) # 标准化数据 # mean：计算矩阵的均值，每列  #calc mean then subtract it off
+    xVar = var(xMat,0) # 标准化数据 # 计算矩阵的方差  #calc variance of Xi then divide by it
+    xMat = (xMat - xMeans)/xVar # 标准化数据
+    numTestPts = 30 # 30个不同的lambda参数下调用函数
+    wMat = zeros((numTestPts,shape(xMat)[1])) # 用来存储30次不同lambda下的回归系数
     for i in range(numTestPts):
-        ws = ridgeRegres(xMat,yMat,exp(i-10))
+        # 不同的lamba参数
+        ws = ridgeRegres(xMat,yMat,exp(i-10)) # http://baike.baidu.com/link?url=W_XfC6iIqoKRCc4OJyDvPeM6pQQzjbX6D-vVsfjZ7XvLwTFXrVUuHGYX9saW9tFNdSQpBpbVfxnJwZqWX3qw1_
         wMat[i,:]=ws.T
     return wMat
 
